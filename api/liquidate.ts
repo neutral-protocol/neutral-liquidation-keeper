@@ -1,6 +1,5 @@
-import { ethers } from "ethers";
+import { Contract, ethers } from 'ethers';
 import colors from "colors";
-import { Vault__factory, PositionManager__factory } from "@mycelium-ethereum/perpetual-swaps-contracts";
 import getOpenPositions from "../src/helpers/getOpenPositions";
 import getPositionsToLiquidate from "../src/helpers/getPositionsToLiquidate";
 import { checkProviderHealth } from "../src/utils";
@@ -17,9 +16,15 @@ const liquidationHandler = async function () {
         }
 
         const signer = new ethers.Wallet(`0x${process.env.LIQUIDATOR_PRIVATE_KEY}`, provider);
-        const vault = Vault__factory.connect(process.env.VAULT_ADDRESS, signer);
-        const positionManager = PositionManager__factory.connect(process.env.POSITION_MANAGER_ADDRESS, signer);
-
+        
+        const vaultAbi = require('./abi/Vault.json');
+        const vaultInterface = new ethers.utils.Interface(vaultAbi);
+        const vault = new Contract(
+            process.env.VAULT_ADDRESS,
+            vaultInterface,
+            signer
+        );
+        
         // Update ETH balance metric
         const balanceWei = await signer.getBalance();
         const balanceEth = ethers.utils.formatEther(balanceWei);
