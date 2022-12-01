@@ -48,7 +48,7 @@ const liquidationHandler = async function () {
         }
 
         console.log("STEP 4: Liquidate positions");
-        await liquidateMultiple(positionsToLiquidate, positionManager);
+        await liquidateMultiple(positionsToLiquidate, vault);
         console.log("OK, all positions liquidated.");
 
         return;
