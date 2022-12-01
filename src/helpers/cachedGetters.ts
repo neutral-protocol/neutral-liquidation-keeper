@@ -1,12 +1,11 @@
-import { Vault } from "@mycelium-ethereum/perpetual-swaps-contracts";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract } from 'ethers';
 import Cache from "node-cache";
 
 const INTERVAL = process.env.INTERVAL_MS ? parseInt(process.env.INTERVAL_MS) : 60000;
 const cache = new Cache({ stdTTL: INTERVAL / 1000 });
 const ONE_DAY = 60 * 60 * 24;
 
-export const getTokenPrice = async (address: string, isLong: boolean, vault: Vault): Promise<BigNumber> => {
+export const getTokenPrice = async (address: string, isLong: boolean, vault: Contract): Promise<BigNumber> => {
     const key = `getPrice-${address}-${isLong}`;
     const cachedPrice = cache.get(key);
     if (cachedPrice) {
@@ -19,7 +18,7 @@ export const getTokenPrice = async (address: string, isLong: boolean, vault: Vau
     }
 };
 
-export const getCumulativeFundingRate = async (token: string, vault: Vault): Promise<BigNumber> => {
+export const getCumulativeFundingRate = async (token: string, vault: Contract): Promise<BigNumber> => {
     const key = `getCumulativeFundingRate-${token}`;
     const cachedValue = cache.get(key);
     if (cachedValue) {
@@ -32,7 +31,7 @@ export const getCumulativeFundingRate = async (token: string, vault: Vault): Pro
     }
 };
 
-export const getLiquidationFee = async (vault: Vault): Promise<BigNumber> => {
+export const getLiquidationFee = async (vault: Contract): Promise<BigNumber> => {
     const key = `getLiquidationFee`;
     const cachedValue = cache.get(key);
     if (cachedValue) {
@@ -45,7 +44,7 @@ export const getLiquidationFee = async (vault: Vault): Promise<BigNumber> => {
     }
 };
 
-export const getMarginFeeBps = async (vault: Vault): Promise<BigNumber> => {
+export const getMarginFeeBps = async (vault: Contract): Promise<BigNumber> => {
     const key = `getMarginFeeBps`;
     const cachedValue = cache.get(key);
     if (cachedValue) {

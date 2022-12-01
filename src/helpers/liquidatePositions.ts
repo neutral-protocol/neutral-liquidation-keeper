@@ -1,9 +1,9 @@
-import { Vault } from '@mycelium-ethereum/perpetual-swaps-contracts/typechain/Vault';
 import colors from 'colors';
+import { Contract } from 'ethers';
 import { IPositionSchema } from '../models/position';
 import { liquidations } from '../utils/prometheus';
 
-export const liquidateMultiple = async(positions : IPositionSchema[], vault : Vault) => {
+export const liquidateMultiple = async(positions : IPositionSchema[], vault : Contract) => {
     const promises : Promise<any>[] = [];
     
     for (const position of positions) {
@@ -15,7 +15,7 @@ export const liquidateMultiple = async(positions : IPositionSchema[], vault : Va
     return Promise.all(promises);
 };
 
-export const liquidateSingle = async(position : IPositionSchema, vault : Vault) => {
+export const liquidateSingle = async(position : IPositionSchema, vault : Contract) => {
     console.log(colors.yellow(`Liquidating position ${position.account}`));
     const tx = await vault.liquidatePosition(
         position.account,

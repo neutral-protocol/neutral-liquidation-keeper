@@ -1,7 +1,6 @@
 import { IPositionSchema } from "src/models/position";
-import { Vault } from "@mycelium-ethereum/perpetual-swaps-contracts";
 import { retry } from "./helpers";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract } from 'ethers';
 import { getCumulativeFundingRate, getLiquidationFee, getMarginFeeBps, getTokenPrice } from "./cachedGetters";
 
 const MAX_LEVERAGE_BPS = process.env.MAX_LEVERAGE_BPS
@@ -9,7 +8,7 @@ const MAX_LEVERAGE_BPS = process.env.MAX_LEVERAGE_BPS
     : BigNumber.from(500000);
 const BASIS_POINTS_DIVISOR = 10000;
 
-const getPositionsToLiquidate = async (vault: Vault, openPositions: IPositionSchema[]) => {
+const getPositionsToLiquidate = async (vault: Contract, openPositions: IPositionSchema[]) => {
     const positionsOverMaxLeverage: IPositionSchema[] = [];
     await Promise.all(openPositions.map(async (position) => {
         const size = BigNumber.from(position.size);
@@ -48,7 +47,7 @@ const getPositionsToLiquidate = async (vault: Vault, openPositions: IPositionSch
     return positionsToLiquidate;
 };
 
-const getLiquidationState = async (dbPosition: IPositionSchema, vault: Vault) => {
+const getLiquidationState = async (dbPosition: IPositionSchema, vault: Contract) => {
     try {
         const liquidationState = await retry({
             fn: async () => {
@@ -82,7 +81,7 @@ const getDelta = (position: IPositionSchema, price: BigNumber) => {
     return size.mul(priceDelta).div(averagePrice);
 };
 
-async function calculateFees(position: IPositionSchema, vault: Vault) {
+async function calculateFees(position: IPositionSchema, vault: Contract) {
     const fundingFee = await getFundingFee(position, vault);
     const positionFee = await getPositionFee(position, vault);
     const liquidationFee = await getLiquidationFee(vault);
@@ -90,7 +89,7 @@ async function calculateFees(position: IPositionSchema, vault: Vault) {
 }
 
 const FUNDING_RATE_PRECISION = 1000000;
-async function getFundingFee(position: IPositionSchema, vault: Vault): Promise<BigNumber> {
+async function getFundingFee(position: IPositionSchema, vault: Contract): Promise<BigNumber> {
     const cumulativeFundingRate = await getCumulativeFundingRate(position.indexToken, vault);
     const fundingRate = cumulativeFundingRate.sub(position.entryFundingRate);
     if (fundingRate.eq(0)) {
@@ -99,7 +98,7 @@ async function getFundingFee(position: IPositionSchema, vault: Vault): Promise<B
     return BigNumber.from(position.size).mul(fundingRate).div(FUNDING_RATE_PRECISION);
 }
 
-async function getPositionFee(position: IPositionSchema, vault: Vault) {
+async function getPositionFee(position: IPositionSchema, vault: Contract) {
     const marginFeeBps = await getMarginFeeBps(vault);
     return BigNumber.from(position.size).mul(marginFeeBps).div(BASIS_POINTS_DIVISOR);
 }
