@@ -5,7 +5,7 @@ import getOpenPositions from "../src/helpers/getOpenPositions";
 import getPositionsToLiquidate from "../src/helpers/getPositionsToLiquidate";
 import { checkProviderHealth } from "../src/utils";
 import { ethBalance, liquidationErrors } from "../src/utils/prometheus";
-import { liquidateMultiple } from '../src/helpers/liquidatePositions';
+import { liquidateMultiple } from "../src/helpers/liquidatePositions";
 
 const liquidationHandler = async function () {
     try {
